@@ -29,11 +29,14 @@ dectecting_memory:
     
     mov si, dectecting
     call print   ;打印检查成功信息
+    
+    call prepare_protected_mode
 
 
 
 
 jmp $
+
 
 print:
     mov ah, 0x0e
@@ -50,6 +53,35 @@ booting:
     db "Loading Onix...", 10 ,13 ,0 ;\n\r
 dectecting:
     db "Dectecting memory success...", 10, 13, 0 
+
+
+memory_base equ 0
+memory_limit equ ((1024 * 1024 * 1024 * 4)/(1024 * 4)) - 1
+
+gdt_base:
+    dd 0, 0 ;gdt[0]==NULL
+gdt_code: ;8Byte
+    dw memory_limit & 0xffff   ;// 段界限 0 ~ 15 位
+    dw memory_base & 0xffff    ;// 基地址 0 ~ 23 位
+    db (memory_base >> 16) & 0xff
+    db 0b_1001_1010 ; present=1 DPL=0 segment =1 ,type：代码段不依从，可读，未被访问
+    db 0b_1100_0000 | ((memory_limit >> 16) & 0xf) ; 4KB粒度32位 段界限 16 - 19 位
+    db (memory_base >> 8) & 0xff ;// 基地址 24 ~ 31 位
+gdt_data:
+    dw memory_limit & 0xffff   ;// 段界限 0 ~ 15 位
+    dw memory_base & 0xffff    ;// 基地址 0 ~ 23 位
+    db (memory_base >> 16) & 0xff
+    db 0b_1001_0010 ; present=1 DPL=0 segment =1 ,type：数据段不依从，可读，未被访问
+    db 0b_1100_0000 | ((memory_limit >> 16) & 0xf) ; 4KB粒度32位 段界限 16 - 19 位
+    db (memory_base >> 8) & 0xff ;// 基地址 24 ~ 31 位
+gdt_end:
+
+
+
+
+
+prepare_protected_mode:
+
 
 error:
     mov si, .msg
