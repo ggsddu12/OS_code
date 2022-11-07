@@ -1,4 +1,14 @@
 00010000 T _start
-00011000 T __bss_start
-00011000 T _edata
-00011000 T _end
+0001000d T set_cursor
+00010075 T get_cursor
+000100d6 T kernel_init
+00010130 T inb
+00010141 T outb
+00010153 T inw
+00010163 T outw
+00012000 D magic
+00012004 D message
+00012013 B __bss_start
+00012013 D _edata
+00012020 B buf
+00012420 B _end

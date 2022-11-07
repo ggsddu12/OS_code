@@ -87,8 +87,8 @@ protected_mode:
     mov edi, 0x10000 ; 读取内核，内核二进制文件在master.img的10-210扇区
     mov ecx, 10 ;起始扇区10
     mov bl, 200 ;200扇区
-    call read_disk
-    jmp dword code_selector:0x10000
+    call read_disk ;读
+    jmp dword code_selector:0x10000 ;转到内核开始执行
     
     ud2;表示出错，不会执行到这
 
