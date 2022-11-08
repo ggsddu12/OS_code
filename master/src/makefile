@@ -16,17 +16,15 @@ CFLAGS:=$(strip ${CFLAGS})
 DEBUG:= -g 
 INCLUDE:= -I$(SRC)/include
 
-
-
-$(BUILD)/boot/%.bin: $(SRC)/boot/%.asm
+$(BUILD)/%.bin: $(SRC)/%.asm
 	$(shell mkdir -p $(dir $@))
 	nasm -f bin $< -o $@
 
-$(BUILD)/kernel/%.o: $(SRC)/kernel/%.asm
+$(BUILD)/%.o: $(SRC)/%.asm
 	$(shell mkdir -p $(dir $@))
 	nasm -f elf32 $< -o $@
 
-$(BUILD)/kernel/%.o: $(SRC)/kernel/%.c
+$(BUILD)/%.o: $(SRC)/%.c
 	$(shell mkdir -p $(dir $@))
 	gcc $(CFLAGS) $(DEBUG) $(INCLUDE) -c $< -o $@
 
@@ -34,6 +32,8 @@ $(BUILD)/kernel.bin: \
 	$(BUILD)/kernel/start.o \
 	$(BUILD)/kernel/main.o \
 	$(BUILD)/kernel/io.o \
+	$(BUILD)/lib/string.o \
+	$(BUILD)/kernel/console.o
 
 	$(shell mkdir -p $(dir $@))
 	ld -m elf_i386 -static $^ -o $@ -Ttext $(ENTRYPOINT)
@@ -44,7 +44,8 @@ $(BUILD)/system.bin: $(BUILD)/kernel.bin
 $(BUILD)/system.map: $(BUILD)/kernel.bin
 	nm $< | sort > $@
 
-$(BUILD)/boot/master.img: $(BUILD)/boot/boot.bin \
+$(BUILD)/boot/master.img: \
+	$(BUILD)/boot/boot.bin \
 	$(BUILD)/boot/loader.bin \
 	$(BUILD)/system.bin \
 	$(BUILD)/system.map \
@@ -53,6 +54,7 @@ $(BUILD)/boot/master.img: $(BUILD)/boot/boot.bin \
 	dd if=$(BUILD)/boot/boot.bin of=$@ bs=512 count=1 conv=notrunc
 	dd if=$(BUILD)/boot/loader.bin of=$@ bs=512 count=4 seek=2 conv=notrunc
 	dd if=$(BUILD)/system.bin of=$@ bs=512 count=200 seek=10 conv=notrunc
+
 test: $(BUILD)/boot/master.img
 
 .PHONY: clean
