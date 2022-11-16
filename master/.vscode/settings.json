@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "onix.h": "c",
+        "assert.h": "c"
+    }
+}

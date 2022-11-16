@@ -7,6 +7,7 @@
 #include <onix/assert.h>
 #include <onix/debug.h>
 #include <onix/task.h>
+#include <onix/interrupt.h>
 
 int magic = ONIX_MAGIC;
 char message[] = "hello onix!!!!\n";
@@ -18,9 +19,8 @@ void kernel_init()
 {
     console_init();
     gdt_init();
-    DEBUGK("task init!!\n");
-    BMB;
-    task_init();
+    interrupt_init();
+    //task_init();
     return;
 }
 
