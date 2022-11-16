@@ -9,7 +9,7 @@ typedef struct gate_t
 {
     uint_16 offset0;
     uint_16 selector;
-    uint_8 reversed;
+    uint_8 reserved;
     uint_8 type :4 ;
     uint_8 segment :1;
     uint_8 DPL:2;
@@ -17,6 +17,8 @@ typedef struct gate_t
     uint_16 offset1;
 } _packed gate_t;
 
+
+typedef void * handler_t;//中断处理函数
 void interrupt_init();
 
 
