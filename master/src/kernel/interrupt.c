@@ -49,9 +49,9 @@ void exception_handler(int vector)
     }
 
     printk("Exception : [0x%02X] %s \n", vector, messages[vector]);
-    // 阻塞
+    //阻塞
     while (true)
-        ;
+       ;
 };
 
 void interrupt_init()

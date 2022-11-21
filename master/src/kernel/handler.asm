@@ -4,11 +4,13 @@ extern handler_table;
 
 section .text
 
-;定义宏 INTERRRUPT_HANDLER 接收两个参数
+;定义宏 INTERRRUPT_HANDLER 接收两个参数 %1 %2
 %macro INTERRUPT_HANDLER 2
 interrupt_handler_%1:
-%ifn %2
-    push 0x20222202
+                ;异常错误码，由cpu自动压栈
+%ifn %2         ;如果无异常错误码，手动压入0x20222202，用来保持栈平衡
+                ;即无论有无错误码，恢复栈只需要esp+8
+    push 0x20222202  
 %endif
     push %1; 压入中断向量号
     jmp interrupt_entry
@@ -17,7 +19,7 @@ interrupt_handler_%1:
 interrupt_entry:
     mov eax, [esp]               ;取出中断号，此时中断号依然在栈顶，被当做入参传给exception_handler
     call [handler_table + eax*4] ;转到中断函数执行
-    
+    ; xchg bx,bx
     add esp, 8
     iret 
 
@@ -27,7 +29,7 @@ interrupt_entry:
 ;   push 0x00
 ;   jmp interrupt_entry
 
-INTERRUPT_HANDLER 0x00, 1; divide by zero
+INTERRUPT_HANDLER 0x00, 0; divide by zero
 INTERRUPT_HANDLER 0x01, 0; debug
 INTERRUPT_HANDLER 0x02, 0; non maskable interrupt
 INTERRUPT_HANDLER 0x03, 0; breakpoint

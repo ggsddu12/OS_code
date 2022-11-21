@@ -7,7 +7,11 @@ global _start
 _start:
     ;mov byte[0xb8000], 'K'
     call kernel_init 
+    ; int 0x80
+    ; xchg bx, bx
     mov bx, 0;
     xchg bx, bx
-    div bx
+    div bx      ;除0异常
+    ; mov ax, 0x20
+    ; mov cs, ax    ;无效操作码异常
     jmp $
