@@ -21,6 +21,16 @@ void kernel_init()
     gdt_init();
     interrupt_init();
     //task_init();
+    asm volatile(
+        "sti\n"
+        "movl %eax, %eax\n");
+
+    uint_32 counter = 0;
+    while (true)
+    {
+        DEBUGK("looping in kernel init %d...\n", counter++);
+        delay(100000000);
+    }
     return;
 }
 

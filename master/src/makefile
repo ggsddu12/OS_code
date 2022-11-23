@@ -42,7 +42,8 @@ $(BUILD)/kernel.bin: \
 	$(BUILD)/kernel/task.o \
 	$(BUILD)/kernel/schedule.o \
 	$(BUILD)/kernel/interrupt.o \
-	$(BUILD)/kernel/handler.o
+	$(BUILD)/kernel/handler.o \
+	$(BUILD)/kernel/stdlib.o
 
 	$(shell mkdir -p $(dir $@))
 	ld -m elf_i386 -static $^ -o $@ -Ttext $(ENTRYPOINT)
