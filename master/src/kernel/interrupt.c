@@ -2,6 +2,7 @@
 #include<onix/global.h>
 #include<onix/debug.h>
 #include<onix/printk.h>
+#include<onix/stdlib.h>
 #include<onix/io.h>
 
 
@@ -60,15 +61,22 @@ void send_eoi(int vector)
     }
 }
 
-uint_32 counter = 0;
+//uint_32 counter = 0;
+extern void schedule();
 
 void default_handler(int vector)
 {
     send_eoi(vector);
-    LOGK("[%d] default interrupt called %d...\n", vector, counter++);
+    //LOGK("[%d] default interrupt called %d...\n", vector, counter++);
+    schedule();
 }
 
-void exception_handler(int vector)
+void exception_handler(
+    int vector,
+    uint_32 edi, uint_32 esi, uint_32 ebp, uint_32 esp,
+    uint_32 ebx, uint_32 edx, uint_32 ecx, uint_32 eax,
+    uint_32 gs, uint_32 fs, uint_32 es, uint_32 ds,
+    uint_32 vector0, uint_32 error, uint_32 eip, uint_32 cs, uint_32 eflags)
 {
     char *message = NULL;
     if (vector < 22)
@@ -80,7 +88,14 @@ void exception_handler(int vector)
         message = messages[15];
     }
 
-    printk("Exception : [0x%02X] %s \n", vector, messages[vector]);
+    //printk("Exception : [0x%02X] %s \n", vector, messages[vector]);
+    printk("\nEXCEPTION : %s \n", messages[vector]);
+    printk("   VECTOR : 0x%02X\n", vector);
+    printk("    ERROR : 0x%08X\n", error);
+    printk("   EFLAGS : 0x%08X\n", eflags);
+    printk("       CS : 0x%02X\n", cs);
+    printk("      EIP : 0x%08X\n", eip);
+    printk("      ESP : 0x%08X\n", esp);
     //阻塞
     hang();
 };
@@ -89,7 +104,7 @@ void exception_handler(int vector)
 void pic_init()
 {
     outb(PIC_M_CTRL, 0b00010001); // ICW1: 边沿触发, 级联 8259, 需要ICW4.
-    outb(PIC_M_DATA, 0x20);       // ICW2: 起始端口号 0x20
+    outb(PIC_M_DATA, 0x20);       // ICW2: 起始向量号 0x20
     outb(PIC_M_DATA, 0b00000100); // ICW3: IR2接从片.
     outb(PIC_M_DATA, 0b00000001); // ICW4: 8086模式, 正常EOI
 

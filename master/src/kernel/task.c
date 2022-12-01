@@ -27,12 +27,21 @@ void schedule()
     task_switch(next);
 }
 
+uint_32 _ofp thread_a()
+{
+    asm volatile("sti\n");
+    while (true)
+    {
+        printk("A");
+        schedule();
+    }
+}
 
-
-uint_32 thread_b()
+uint_32 _ofp thread_b()
 {
     // DEBUGK("Thread_b!!!\n");
     // BMB;
+    asm volatile("sti\n");
     while (true)
     {
         printk("B");
@@ -40,16 +49,7 @@ uint_32 thread_b()
     }
 }
 
-uint_32 thread_a()
-{
-    while (true)
-    {
-        // DEBUGK("Thread_a!!!\n");
-        // BMB;
-        printk("A");
-        schedule();
-    }
-}
+
 
 static void task_create(task_t *task, target_t target)
 {

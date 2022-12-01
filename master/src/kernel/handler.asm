@@ -17,10 +17,32 @@ interrupt_handler_%1:
 %endmacro
 
 interrupt_entry:
-    mov eax, [esp]               ;取出中断号，此时中断号依然在栈顶，被当做入参传给exception_handler
+    ;保存上文寄存器
+    push ds
+    push es
+    push fs
+    push gs
+    pusha
+
+    mov eax, [esp + 12 * 4]               ;取出中断号，%1，被当做入参传给exception_handler
+    
+    ;中断函数入参vector
+    push eax 
+
     call [handler_table + eax*4] ;转到中断函数执行
-    ; xchg bx,bx
-    add esp, 8
+
+    ;对应push eax，恢复栈
+    add esp, 4
+
+    ;恢复下文栈
+    popa
+    pop gs
+    pop fs
+    pop es
+    pop ds
+
+    ;push %1与错误码（若无错误码则为0x20222202）
+    add esp,8
     iret 
 
 
